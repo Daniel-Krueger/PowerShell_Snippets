@@ -63,7 +63,7 @@ if ($result -ne [System.Windows.Forms.DialogResult]::OK)
 
 #region calculate url
 $selectedTime = $listBox.SelectedItem
-$pauseUntil = [datetime]::Parse($currentTime.ToShortDateString()+' '+$selectedTime)
+$pauseUntil = [datetime]::Parse((Get-Date).ToShortDateString()+' '+$selectedTime)
 $url = "https://webuhr.de/embed/timer/"
 $url += "#date="+$pauseUntil.ToString("s")
 $url += "&theme=0"

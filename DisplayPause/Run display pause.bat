@@ -1,0 +1,1 @@
+powershell.exe -Executionpolicy Bypass -File ".\displaypause.ps1"

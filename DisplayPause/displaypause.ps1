@@ -1,4 +1,17 @@
-﻿
+﻿#region setup
+# labels
+$formTitelText = "Select time to pause"
+$playReminderText = "Play reminder"
+$okButtonText = "OK"
+$cancelButtonText = "Cancel"
+# predefined settings
+$pauseTitleText = "Pause ends"
+$numberOf5MinuteOptions = 16
+$reminderChecked = $false
+$alarmSoundPath = "$($env:windir)\Media\alarm01.wav"
+$playReminderMinutesBeforePauseEnd = 2
+#endregion
+
 #region Form setup
 # Drop down sample taken from 
 # https://docs.microsoft.com/de-de/powershell/scripting/samples/selecting-items-from-a-list-box?view=powershell-7.1
@@ -6,47 +19,60 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'Select time to pause'
-$form.Size = New-Object System.Drawing.Size(200,350)
+$form.Text = $formTitelText
+$form.Size = New-Object System.Drawing.Size(200,365)
 $form.StartPosition = 'CenterScreen'
-
-$okButton = New-Object System.Windows.Forms.Button
-$okButton.Location = New-Object System.Drawing.Point(10,270)
-$okButton.Size = New-Object System.Drawing.Size(75,23)
-$okButton.Text = 'OK'
-$okButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
-$form.AcceptButton = $okButton
-$form.Controls.Add($okButton)
-
-$cancelButton = New-Object System.Windows.Forms.Button
-$cancelButton.Location = New-Object System.Drawing.Point(95,270)
-$cancelButton.Size = New-Object System.Drawing.Size(75,23)
-$cancelButton.Text = 'Cancel'
-$cancelButton.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
-$form.CancelButton = $cancelButton
-$form.Controls.Add($cancelButton)
 
 $label = New-Object System.Windows.Forms.Label
 $label.Location = New-Object System.Drawing.Point(10,20)
-$label.Size = New-Object System.Drawing.Size(30,20)
-$label.Text = 'Title'
+$label.Size = New-Object System.Drawing.Size(70,20)
+$label.Text = 'Pause name'
 $form.Controls.Add($label)
 
 $textBox = New-Object System.Windows.Forms.TextBox
-$textBox.Location = New-Object System.Drawing.Point(40,15)
-$textBox.Size = New-Object System.Drawing.Size(129,20)
-$textBox.Text = 'Pause ends'
+$textBox.Location = New-Object System.Drawing.Point(80,15)
+$textBox.Size = New-Object System.Drawing.Size(89,20)
+$textBox.Text = $pauseTitleText
 $form.Controls.Add($textBox)
 
 $listBox = New-Object System.Windows.Forms.ListBox
 $listBox.Location = New-Object System.Drawing.Point(11,40)
 $listBox.Size = New-Object System.Drawing.Size(158,280)
 $listBox.Height = 230
+
+
+$label = New-Object System.Windows.Forms.Label
+$label.Location = New-Object System.Drawing.Point(10,270)
+$label.Size = New-Object System.Drawing.Size(90,20)
+$label.Text = $playReminderText
+$form.Controls.Add($label)
+
+$reminderBox = New-Object System.Windows.Forms.CheckBox
+$reminderBox.Location = New-Object System.Drawing.Point(105,267)
+$reminderBox.Size = New-Object System.Drawing.Size(20,20)
+$reminderBox.Checked = $reminderChecked;
+$form.Controls.Add($reminderBox)
+
+$okButton = New-Object System.Windows.Forms.Button
+$okButton.Location = New-Object System.Drawing.Point(10,292)
+$okButton.Size = New-Object System.Drawing.Size(75,23)
+$okButton.Text = $okButtonText
+$okButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
+$form.AcceptButton = $okButton
+$form.Controls.Add($okButton)
+
+$cancelButton = New-Object System.Windows.Forms.Button
+$cancelButton.Location = New-Object System.Drawing.Point(95,292)
+$cancelButton.Size = New-Object System.Drawing.Size(75,23)
+$cancelButton.Text = $cancelButtonText
+$cancelButton.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+$form.CancelButton = $cancelButton
+$form.Controls.Add($cancelButton)
 #endregion 
 
 #region populate drop down
 $currentTime = (Get-Date)
-for ($i = 0; $i -lt 16;$i++){
+for ($i = 0; $i -lt $numberOf5MinuteOptions;$i++){
     $currentTime= $currentTime.AddMinutes(5- $currentTime.Minute %5)
     [void] $listBox.Items.Add($currentTime.ToShortTimeString())
 }
@@ -103,4 +129,19 @@ if ($runningProcess -eq $null){
     Write-Host  "$url" -ForegroundColor Green
     Read-Host "Press key to exit"
 }
+
+#endregion
+
+#region Play pause, if requested
+if ($reminderBox.Checked){   
+    $totalPause = $pauseUntil.AddMinutes($playReminderMinutesBeforePauseEnd*-1).Subtract((Get-Date))   
+    Write-Host  "A reminder will be sounded at $($pauseUntil.AddMinutes($playReminderMinutesBeforePauseEnd*-1).ToShortTimeString()), if the window remains open."
+    if ($totalPause.TotalSeconds -gt 0){
+        sleep -Seconds $totalPause.TotalSeconds
+    }
+    $PlayWav=New-Object System.Media.SoundPlayer
+    $PlayWav.SoundLocation=$alarmSoundPath
+    $PlayWav.playsync()
+}
+
 #endregion

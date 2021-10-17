@@ -36,7 +36,7 @@ function Get-NAVServiceFolder (){
     If the app does not exist, it will be installed otherwise the existing one gets updated.
 .NOTES
     Author:   Daniel Krüger
-	Date:     2021-10-20
+	Date:     2021-10-17
 .PARAMETER file
     The path to the application. The default naming convention should be used Publisher_AppName_AppVersion
 .PARAMETER instancesToExclude
@@ -139,7 +139,7 @@ function Ensure-NavApp {
     Imports a license and restarts the server instances.
 .NOTES
     Author:   Daniel Krüger
-	Date:     2021-10-20
+	Date:     2021-10-17
 .PARAMETER file
     The path to the license. 
 .PARAMETER instancesToExclude
